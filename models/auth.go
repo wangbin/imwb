@@ -1,10 +1,11 @@
 package models
 
 import (
+	"errors"
 	"github.com/astaxie/beego/validation"
 	r "github.com/christopherhesse/rethinkgo"
-	"time"
 	"regexp"
+	"time"
 )
 
 const (
@@ -48,6 +49,10 @@ func (user *User) mapping() r.Map {
 
 func (user *User) Save(session *r.Session) error {
 	var err error
+	if err = user.Validate(); err != nil {
+		return err
+	}
+	
 	var response r.WriteResponse
 	if len(user.Id) > 0 {
 		err = r.Table(UserTable).Get(user.Id).Update(user.mapping()).Run(session).One(&response)
@@ -60,31 +65,36 @@ func (user *User) Save(session *r.Session) error {
 	return err
 }
 
-func (user *User) validate() *validation.ValidationError {
+func (user *User) Validate() error {
 	var v *validation.ValidationResult
 	valid := validation.Validation{}
 	if v = valid.Required(user.UserName, "username"); !v.Ok {
-		return v.Error
+		return errors.New(v.Error.Message)
 	}
 	if v = valid.MaxSize(user.UserName, 30, "username"); !v.Ok {
-		return v.Error
+		return errors.New(v.Error.Message)
 	}
 	if v = valid.Match(user.UserName, UserNamePattern, "username"); !v.Ok {
-		return v.Error
+		return errors.New(v.Error.Message)
 	}
 	if len(user.FirstName) > 0 {
-		if v = valid.MaxSize(user.FirstName, 30, "first name");!v.Ok {
-			return v.Error
+		if v = valid.MaxSize(user.FirstName, 30, "first name"); !v.Ok {
+			return errors.New(v.Error.Message)
 		}
 	}
 	if len(user.LastName) > 0 {
-		if v = valid.MaxSize(user.LastName, 30, "last name");!v.Ok {
-			return v.Error
+		if v = valid.MaxSize(user.LastName, 30, "last name"); !v.Ok {
+			return errors.New(v.Error.Message)
 		}
 	}
 	return nil
 }
 
 func CreateUser(username, password, email string) (*User, error) {
-	return &User{UserName: username, Password: password, Email: email}, nil
+	user := &User{UserName: username, Password: password, Email: email}
+	err := user.Validate()
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }
