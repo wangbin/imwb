@@ -87,11 +87,16 @@ func (user *User) Validate() error {
 			return errors.New(v.Error.Message)
 		}
 	}
+	if len(user.Email) > 0 {
+		if v = valid.Email(user.Email, "email"); !v.Ok {
+			return errors.New(v.Error.Message)
+		}
+	}
 	return nil
 }
 
-func CreateUser(username, password, email string) (*User, error) {
-	user := &User{UserName: username, Password: password, Email: email}
+func CreateUser(username string) (*User, error) {
+	user := &User{UserName: username}
 	err := user.Validate()
 	if err != nil {
 		return nil, err

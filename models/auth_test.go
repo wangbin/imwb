@@ -13,12 +13,26 @@ func TestUserValidate(t *testing.T) {
 	if err := u.Validate(); err == nil {
 		t.Error("username max length should be 30")
 	}
-	u.UserName = "admin"
-	if err := u.Validate(); err != nil {
-		t.Error(err)
-	}
 	u.UserName = "admin#"
 	if err:=u.Validate();err == nil {
 		t.Error("username contains invalid character")
 	}
+	u.UserName = "admin"
+	if err := u.Validate(); err != nil {
+		t.Error(err)
+	}
+	u.FirstName = "this is a long string that length is definitely longer than 30 characters"
+	if err := u.Validate(); err == nil {
+		t.Error("first name max length should be 30")
+	}
+	u.FirstName = "admin"
+	u.Email = "admin@gmail"
+	if err := u.Validate(); err == nil {
+		t.Error("invalid email")
+	}
+	u.Email = "admin.system_it@gmail.com"
+	if err := u.Validate(); err != nil {
+		t.Error(err)
+	}
+
 }
