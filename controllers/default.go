@@ -28,8 +28,9 @@ type LoginController struct {
 func (this *LoginController) Get() {
 	this.TplNames = "login.tpl"
 	this.Data["Form"] = &LoginForm{}
-	v:= this.GetSession("auth_id")
-	fmt.Printf("auth_id = %v", v)
+	ss := this.StartSession()
+	defer ss.SessionRelease()
+	ss.Set("name", "wangbin")
 }
 
 func (this *LoginController) Post() {
@@ -38,6 +39,7 @@ func (this *LoginController) Post() {
 		fmt.Println(err)
 	}
 	this.SetSession("auth_id", form.Password)
+	this.SetSession("user", form.Password)
 	fmt.Println(form)
 	this.Ctx.Redirect(302, "/login/")
 }
