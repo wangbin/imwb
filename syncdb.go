@@ -29,11 +29,11 @@ func reCreateTable(session *r.Session) {
 	r.TableCreateWithSpec(userTableSpec).Run(session).Exec()
 	var response map[string]int
 	r.Table(UserTableName).IndexCreate("username", nil).Run(session).All(&response)
-	fmt.Println(response)
 }
 
 func createUsers(session *r.Session) {
-	admin := models.User{
+	var err error
+	admin := &models.User{
 		UserName:    "admin",
 		Password:    "1234",
 		Email:       "admin@example.com",
@@ -43,7 +43,12 @@ func createUsers(session *r.Session) {
 		LastLogin:   time.Now(),
 		Groups:      []string{"admin"},
 	}
-	wangbin := models.User{
+	err = admin.Save(session)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(admin.Id)
+	wangbin := &models.User{
 		UserName:    "wangbin",
 		Password:    "1234",
 		Email:       "admin@example.com",
@@ -53,10 +58,11 @@ func createUsers(session *r.Session) {
 		LastLogin:   time.Now(),
 		Groups:      []string{"admin", "author"},
 	}
-
-	var response r.WriteResponse
-	r.Table(UserTableName).Insert([]models.User{admin, wangbin}).Run(session).One(&response)
-	fmt.Println(response)
+	err = wangbin.Save(session)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(wangbin.Id)
 }
 
 func main() {
