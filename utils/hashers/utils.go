@@ -1,4 +1,4 @@
-package utils
+package hashers
 
 import (
 	"math/rand"
