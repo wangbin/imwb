@@ -1,18 +1,21 @@
 package hashers
 
 import (
-	"math/rand"
+	"crypto/rand"
+	"math/big"
 )
 
 const (
 	AllowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	MaxSaltSize  = 12
 )
 
 func RandomString() string {
-	result := make([]byte, 12)
-	length := len(AllowedChars)
+	result := make([]byte, MaxSaltSize)
+	length := int64(len(AllowedChars))
 	for index := range result {
-		result[index] = AllowedChars[rand.Intn(length)]
+		i, _ := rand.Int(rand.Reader, big.NewInt(length))
+		result[index] = AllowedChars[i.Int64()]
 	}
 	return string(result)
 }
