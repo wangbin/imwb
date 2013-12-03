@@ -14,3 +14,7 @@ type BasePasswordHash struct {
 	algorithm string
 	digest    func() hash.Hash
 }
+
+func (ph *BasePasswordHash) MustUpdate() bool {
+	return false
+}

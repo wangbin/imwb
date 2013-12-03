@@ -20,7 +20,14 @@ func NewBcryptSHA256PasswordHash() *BcryptPasswordHash {
 }
 
 func (this *BcryptPasswordHash) Encode(password string) (string, error) {
-	encode, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	pw := []byte(password)
+	if this.digest != nil {
+		h := this.digest()
+		h.Write(pw)
+		pw = h.Sum(nil)
+	}
+
+	encode, err := bcrypt.GenerateFromPassword(pw, bcrypt.DefaultCost)
 	if err != nil {
 		return "", err
 	}
