@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/astaxie/beego/validation"
 	r "github.com/christopherhesse/rethinkgo"
+	"github.com/wangbin/imwb/utils/hashers"
 	"regexp"
 	"time"
 )
@@ -52,7 +53,7 @@ func (user *User) Save(session *r.Session) error {
 	if err = user.Validate(); err != nil {
 		return err
 	}
-	
+
 	var response r.WriteResponse
 	if len(user.Id) > 0 {
 		err = r.Table(UserTable).Get(user.Id).Update(user.mapping()).Run(session).One(&response)
@@ -93,6 +94,10 @@ func (user *User) Validate() error {
 		}
 	}
 	return nil
+}
+
+func (user *User) SetPassword(rawPass string) {
+	user.Password = hashers.MakePassword(rawPass)
 }
 
 func CreateUser(username string) (*User, error) {

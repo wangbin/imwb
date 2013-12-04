@@ -1,7 +1,6 @@
 package hashers
 
 import (
-	"strings"
 	"testing"
 )
 
@@ -31,17 +30,6 @@ func TestSha256Verify(t *testing.T) {
 	}
 }
 
-func TestSha256MustUpdate(t *testing.T) {
-	pw, _ := ph256.Encode(RawPass)
-	if ph256.MustUpdate(pw) {
-		t.FailNow()
-	}
-	badPass := strings.Replace(pw, "12000", "12001", 1)
-	if !ph256.MustUpdate(badPass) {
-		t.FailNow()
-	}
-}
-
 func TestSha1Encode(t *testing.T) {
 	_, err := ph1.Encode(RawPass)
 	if err != nil {
@@ -56,16 +44,5 @@ func TestSha1Verify(t *testing.T) {
 	}
 	if ph1.Verify("12345", pw) {
 		t.Error("Password should not be verified")
-	}
-}
-
-func TestSha1MustUpdate(t *testing.T) {
-	pw, _ := ph1.Encode(RawPass)
-	if ph1.MustUpdate(pw) {
-		t.FailNow()
-	}
-	badPass := strings.Replace(pw, "12000", "12001", 1)
-	if !ph1.MustUpdate(badPass) {
-		t.FailNow()
 	}
 }

@@ -74,18 +74,3 @@ func (this *PBKDF2PasswordHash) Verify(password, encode string) bool {
 	}
 	return subtle.ConstantTimeCompare([]byte(encode), []byte(encode2)) == 1
 }
-
-func (this *PBKDF2PasswordHash) MustUpdate(encode string) bool {
-	p := strings.SplitN(encode, "$", 4)
-	if len(p) != 4 {
-		return true
-	}
-	iterations, err := strconv.Atoi(p[1])
-	if err != nil {
-		return true
-	}
-	if iterations != this.iterations {
-		return true
-	}
-	return false
-}
