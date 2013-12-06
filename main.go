@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/wangbin/imwb/controllers"
 	"github.com/astaxie/beego"
+	"github.com/wangbin/imwb/controllers"
 )
 
 func main() {
@@ -11,4 +11,3 @@ func main() {
 	beego.Router("/login/", &controllers.LoginController{})
 	beego.Run()
 }
-

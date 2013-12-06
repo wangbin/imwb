@@ -1,11 +1,13 @@
-package models
+package auth
 
 import (
 	"errors"
+	"fmt"
 	"github.com/astaxie/beego/validation"
 	r "github.com/christopherhesse/rethinkgo"
 	"github.com/wangbin/imwb/utils/hashers"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -56,7 +58,8 @@ func (user *User) Save(session *r.Session) error {
 
 	var response r.WriteResponse
 	if len(user.Id) > 0 {
-		err = r.Table(UserTable).Get(user.Id).Update(user.mapping()).Run(session).One(&response)
+		err = r.Table(UserTable).Get(user.Id).Update(user.mapping()).Run(session).One(
+			&response)
 	} else {
 		err = r.Table(UserTable).Insert(user).Run(session).One(&response)
 		if err == nil && len(response.GeneratedKeys) > 0 {
@@ -107,4 +110,16 @@ func CreateUser(username string) (*User, error) {
 		return nil, err
 	}
 	return user, nil
+}
+
+func NormalizeEmail(email string) string {
+	if len(email) == 0 {
+		return email
+	}
+	index := strings.LastIndex(email, "@")
+	if index == -1 {
+		return email
+	}
+	prefix, suffix := email[:index], email[index+1:]
+	return fmt.Sprintf("%s@%s", prefix, strings.ToLower(suffix))
 }

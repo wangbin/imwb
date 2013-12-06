@@ -1,4 +1,4 @@
-package models
+package auth
 
 import (
 	"testing"
@@ -14,7 +14,7 @@ func TestUserValidate(t *testing.T) {
 		t.Error("username max length should be 30")
 	}
 	u.UserName = "admin#"
-	if err:=u.Validate();err == nil {
+	if err := u.Validate(); err == nil {
 		t.Error("username contains invalid character")
 	}
 	u.UserName = "admin"
@@ -33,6 +33,23 @@ func TestUserValidate(t *testing.T) {
 	u.Email = "admin.system_it@gmail.com"
 	if err := u.Validate(); err != nil {
 		t.Error(err)
+	}
+
+}
+
+func TestNormailzeEmail(t *testing.T) {
+	email := ""
+	if NormalizeEmail(email) != email {
+		t.Error("empty email should return unchanged")
+	}
+	email = "admin#example.com"
+	if NormalizeEmail(email) != email {
+		t.Error("invalid email should return unchanged")
+	}
+	email = "admin@Example.com"
+	emailNormalized := "admin@example.com"
+	if NormalizeEmail(email) != emailNormalized {
+		t.Error("email domain part should be lowercase")
 	}
 
 }
