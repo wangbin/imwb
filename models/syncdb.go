@@ -3,15 +3,14 @@ package main
 import (
 	"fmt"
 	r "github.com/christopherhesse/rethinkgo"
-	"github.com/wangbin/imwb/models"
-	"time"
+	"github.com/wangbin/imwb/models/auth"
 )
 
 const (
 	DbName        = "imwb"
 	UserTableName = "auth_user"
-	AuthKey       = "wangbin7972"
-	Address       = "localhost:28015"
+	//	AuthKey       = "wangbin7972"
+	Address = "localhost:28015"
 )
 
 var (
@@ -33,31 +32,27 @@ func reCreateTable(session *r.Session) {
 
 func createUsers(session *r.Session) {
 	var err error
-	admin := &models.User{
+	admin := &auth.User{
 		UserName:    "admin",
-		Password:    "1234",
 		Email:       "admin@example.com",
 		IsSuperUser: true,
 		IsActive:    true,
-		DateJoined:  time.Now(),
-		LastLogin:   time.Now(),
 		Groups:      []string{"admin"},
 	}
+	admin.SetPassword("1234")
 	err = admin.Save(session)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println(admin.Id)
-	wangbin := &models.User{
+	wangbin := &auth.User{
 		UserName:    "wangbin",
-		Password:    "1234",
 		Email:       "admin@example.com",
 		IsSuperUser: true,
 		IsActive:    true,
-		DateJoined:  time.Now(),
-		LastLogin:   time.Now(),
 		Groups:      []string{"admin", "author"},
 	}
+	wangbin.SetPassword("1234")
 	err = wangbin.Save(session)
 	if err != nil {
 		panic(err)
@@ -66,7 +61,8 @@ func createUsers(session *r.Session) {
 }
 
 func main() {
-	session, err = r.ConnectWithAuth(Address, DbName, AuthKey)
+	//	session, err = r.ConnectWithAuth(Address, DbName, AuthKey)
+	session, err = r.Connect(Address, DbName)
 	if err != nil {
 		panic(err)
 	}

@@ -51,5 +51,4 @@ func TestNormailzeEmail(t *testing.T) {
 	if NormalizeEmail(email) != emailNormalized {
 		t.Error("email domain part should be lowercase")
 	}
-
 }
