@@ -28,3 +28,7 @@ func NewUser(username string) (*User, error) {
 	user.LastLogin = time.Now()
 	return user, nil
 }
+
+func NewAnonymousUser() *User {
+	return new(AnonymousUser)
+}

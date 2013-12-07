@@ -104,3 +104,13 @@ func (user *User) SetPassword(rawPass string) {
 func (user *User) SetEmail(email string) {
 	user.Email = NormalizeEmail(email)
 }
+
+func (user *User) IsAnonymous() bool {
+	return false
+}
+
+type AnonymousUser User
+
+func (user *AnonymousUser) IsAnnymous() bool {
+	return true
+}
