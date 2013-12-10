@@ -30,5 +30,7 @@ func NewUser(username string) (*User, error) {
 }
 
 func NewAnonymousUser() *User {
-	return new(AnonymousUser)
+	user, _ := NewUser("AnonymousUser")
+	user.Id = AnonymousUserId
+	return user
 }

@@ -10,7 +10,8 @@ import (
 )
 
 const (
-	UserTable = "auth_user"
+	UserTable       = "auth_user"
+	AnonymousUserId = "-1"
 )
 
 var (
@@ -50,6 +51,9 @@ func (user *User) mapping() r.Map {
 
 func (user *User) Save(session *r.Session) error {
 	var err error
+	if user.IsAnonymous() {
+		return errors.New("Can't save anonymous user")
+	}
 	if err = user.Validate(); err != nil {
 		return err
 	}
@@ -106,11 +110,5 @@ func (user *User) SetEmail(email string) {
 }
 
 func (user *User) IsAnonymous() bool {
-	return false
-}
-
-type AnonymousUser User
-
-func (user *AnonymousUser) IsAnnymous() bool {
-	return true
+	return user.Id == AnonymousUserId
 }

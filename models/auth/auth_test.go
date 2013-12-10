@@ -52,3 +52,10 @@ func TestNormailzeEmail(t *testing.T) {
 		t.Error("email domain part should be lowercase")
 	}
 }
+
+func TestNewAnonmousUser(t *testing.T) {
+	u := NewAnonymousUser()
+	if u.Id != AnonymousUserId {
+		t.Error("User is not anonymous")
+	}
+}
