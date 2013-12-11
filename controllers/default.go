@@ -46,7 +46,7 @@ func (this *LoginController) Get() {
 	this.TplNames = "login.tpl"
 	form := forms.NewLoginForm()
 	this.Data["Form"] = form
-	this.Data["UserId"] = this.userCache.Id
+	this.Data["User"] = this.userCache
 }
 
 func (this *LoginController) Post() {
@@ -58,7 +58,7 @@ func (this *LoginController) Post() {
 	form.SetRs(this.rs)
 	if !form.IsValid() {
 		this.TplNames = "login.tpl"
-		this.Data["UserId"] = this.userCache.Id
+		this.Data["User"] = this.userCache
 		this.Data["Form"] = form
 	} else {
 		this.login(form.User().Id)
@@ -69,4 +69,13 @@ func (this *LoginController) Post() {
 func (this *LoginController) login(userId string) {
 	this.DelSession(SessionKey)
 	this.SetSession(SessionKey, userId)
+}
+
+type LogoutController struct {
+	beego.Controller
+}
+
+func (this *LogoutController) Get() {
+	this.DelSession(SessionKey)
+	this.Ctx.Redirect(302, "/login/")
 }

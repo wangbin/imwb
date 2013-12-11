@@ -17,4 +17,14 @@
       {{ end }}
         <input type="submit" name="submit"/>
         {{ .UserId }}
+
+      {{ if .User }}
+      XXXX{{ with .User }}YYY
+      {{ .UserName }}
+         {{ if .IsAuthenticated }}
+            <a href="/logout/">Log out</a>
+         {{ end }}
+      {{ end }}
+      {{ end }}
+
 </form>

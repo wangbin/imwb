@@ -119,6 +119,10 @@ func (user *User) IsAnonymous() bool {
 	return user.Id == AnonymousUserId
 }
 
+func (user *User) IsAuthenticated() bool {
+	return !user.IsAnonymous()
+}
+
 func (user *User) CheckPassword(password string) bool {
 	return hashers.CheckPassword(password, user.Password)
 }
