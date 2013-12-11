@@ -1,6 +1,8 @@
 package auth
 
 import (
+	r "github.com/christopherhesse/rethinkgo"
+	"github.com/wangbin/imwb/settings"
 	"testing"
 )
 
@@ -57,5 +59,16 @@ func TestNewAnonmousUser(t *testing.T) {
 	u := NewAnonymousUser()
 	if u.Id != AnonymousUserId {
 		t.Error("User is not anonymous")
+	}
+}
+
+func TestAuthenticate(t *testing.T) {
+	rs, _ := r.Connect(settings.DbUri, settings.DbName)
+	defer rs.Close()
+	if _, ok := Authenticate(rs, "wangbin", "1234"); !ok {
+		t.FailNow()
+	}
+	if _, ok := Authenticate(rs, "wangbin", "11111"); ok {
+		t.FailNow()
 	}
 }

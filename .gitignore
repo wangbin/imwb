@@ -4,3 +4,5 @@ imwb
 /static/css/*
 /static/bower_components/*
 /static/node_modules/*
+\#*
+\.\#*

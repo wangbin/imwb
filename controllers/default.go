@@ -54,6 +54,7 @@ func (this *LoginController) Post() {
 	if err != nil {
 		form.SetNonFieldError(err)
 	}
+	form.SetRs(this.rs)
 	if !form.IsValid() {
 		this.TplNames = "login.tpl"
 		this.Data["Form"] = form

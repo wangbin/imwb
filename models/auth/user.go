@@ -119,6 +119,10 @@ func (user *User) IsAnonymous() bool {
 	return user.Id == AnonymousUserId
 }
 
+func (user *User) CheckPassword(password string) bool {
+	return hashers.CheckPassword(password, user.Password)
+}
+
 func GetUser(session *r.Session, userId string) *User {
 	var user *User
 	err := r.Table(UserTable).Get(userId).Run(session).One(&user)
