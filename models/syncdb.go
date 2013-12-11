@@ -4,19 +4,13 @@ import (
 	"fmt"
 	r "github.com/christopherhesse/rethinkgo"
 	"github.com/wangbin/imwb/models/auth"
-)
-
-const (
-	DbName        = "imwb"
-	UserTableName = "auth_user"
-	//	AuthKey       = "wangbin7972"
-	Address = "localhost:28015"
+	"github.com/wangbin/imwb/settings"
 )
 
 var (
 	session       *r.Session
 	err           error
-	userTableSpec = r.TableSpec{Name: UserTableName}
+	userTableSpec = r.TableSpec{Name: auth.UserTable}
 )
 
 func reCreateTable(session *r.Session) {
@@ -27,11 +21,10 @@ func reCreateTable(session *r.Session) {
 	}
 	r.TableCreateWithSpec(userTableSpec).Run(session).Exec()
 	var response map[string]int
-	r.Table(UserTableName).IndexCreate("username", nil).Run(session).All(&response)
+	r.Table(auth.UserTable).IndexCreate("username", nil).Run(session).All(&response)
 }
 
 func createUsers(session *r.Session) {
-	var err error
 	admin := &auth.User{
 		UserName:    "admin",
 		Email:       "admin@example.com",
@@ -62,7 +55,7 @@ func createUsers(session *r.Session) {
 
 func main() {
 	//	session, err = r.ConnectWithAuth(Address, DbName, AuthKey)
-	session, err = r.Connect(Address, DbName)
+	session, err = r.Connect(settings.DbUri, settings.DbName)
 	if err != nil {
 		panic(err)
 	}

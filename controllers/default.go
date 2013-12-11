@@ -3,6 +3,12 @@ package controllers
 import (
 	"fmt"
 	"github.com/astaxie/beego"
+	r "github.com/christopherhesse/rethinkgo"
+	"github.com/wangbin/imwb/models/auth"
+)
+
+const (
+	SessionKey = "_auth_user_id"
 )
 
 type MainController struct {
@@ -23,6 +29,18 @@ type LoginForm struct {
 
 type LoginController struct {
 	beego.Controller
+	userCache *auth.User
+	rs        *r.Session
+}
+
+func (this *LoginController) Prepare() {
+	rs = 
+	userId := this.GetSession(SessionKey)
+	if userId == nil {
+		this.userCache = auth.NewAnonymousUser()
+	} else {
+		this.userCache = auth.GetUser(userId)
+	}
 }
 
 func (this *LoginController) Get() {

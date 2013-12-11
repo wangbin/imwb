@@ -112,3 +112,12 @@ func (user *User) SetEmail(email string) {
 func (user *User) IsAnonymous() bool {
 	return user.Id == AnonymousUserId
 }
+
+func GetUser(session *r.Session, userId string) *User {
+	var user *User
+	err := r.Table(UserTable).Get(userId).Run(session).One(&user)
+	if err != nil {
+		return NewAnonymousUser()
+	}
+	return user
+}
