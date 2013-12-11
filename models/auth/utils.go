@@ -2,7 +2,6 @@ package auth
 
 import (
 	"fmt"
-	r "github.com/christopherhesse/rethinkgo"
 	"strings"
 	"time"
 )
@@ -30,20 +29,4 @@ func NewAnonymousUser() *User {
 	user := NewUser("AnonymousUser")
 	user.Id = AnonymousUserId
 	return user
-}
-
-func Authenticate(session *r.Session, name, password string) (*User, bool) {
-	var users []*User
-	err := r.Table(UserTable).GetAll("username", name).Run(session).All(&users)
-	if err != nil {
-		return nil, false
-	}
-	if len(users) == 0 {
-		return nil, false
-	}
-	user := users[0]
-	if !user.CheckPassword(password) {
-		return nil, false
-	}
-	return user, true
 }
