@@ -18,19 +18,15 @@ func NormalizeEmail(email string) string {
 	return fmt.Sprintf("%s@%s", prefix, strings.ToLower(suffix))
 }
 
-func NewUser(username string) (*User, error) {
+func NewUser(username string) *User {
 	user := &User{UserName: username}
-	err := user.Validate()
-	if err != nil {
-		return nil, err
-	}
 	user.DateJoined = time.Now()
 	user.LastLogin = time.Now()
-	return user, nil
+	return user
 }
 
 func NewAnonymousUser() *User {
-	user, _ := NewUser("AnonymousUser")
+	user := NewUser("AnonymousUser")
 	user.Id = AnonymousUserId
 	return user
 }

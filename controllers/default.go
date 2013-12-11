@@ -1,10 +1,11 @@
 package controllers
 
 import (
-	"fmt"
 	"github.com/astaxie/beego"
 	r "github.com/christopherhesse/rethinkgo"
+	"github.com/wangbin/imwb/forms"
 	"github.com/wangbin/imwb/models/auth"
+	"github.com/wangbin/imwb/settings"
 )
 
 const (
@@ -21,12 +22,6 @@ func (this *MainController) Get() {
 	this.TplNames = "index.tpl"
 }
 
-type LoginForm struct {
-	Id       int    `form:"-"`
-	Name     string `form:"username"`
-	Password string `form:"password,password,"`
-}
-
 type LoginController struct {
 	beego.Controller
 	userCache *auth.User
@@ -34,30 +29,35 @@ type LoginController struct {
 }
 
 func (this *LoginController) Prepare() {
-	rs = 
+	this.rs, _ = r.Connect(settings.DbUri, settings.DbName)
 	userId := this.GetSession(SessionKey)
 	if userId == nil {
 		this.userCache = auth.NewAnonymousUser()
 	} else {
-		this.userCache = auth.GetUser(userId)
+		this.userCache = auth.GetUser(this.rs, userId.(string))
 	}
+}
+
+func (this *LoginController) Finish() {
+	this.rs.Close()
 }
 
 func (this *LoginController) Get() {
 	this.TplNames = "login.tpl"
-	this.Data["Form"] = &LoginForm{}
-	ss := this.StartSession()
-	defer ss.SessionRelease()
-	ss.Set("name", "wangbin")
+	form := forms.NewLoginForm()
+	this.Data["Form"] = form
 }
 
 func (this *LoginController) Post() {
-	form := LoginForm{}
-	if err := this.ParseForm(&form); err != nil {
-		fmt.Println(err)
+	form := forms.NewLoginForm()
+	err := this.ParseForm(form)
+	if err != nil {
+		form.SetNonFieldError(err)
 	}
-	this.SetSession("auth_id", form.Password)
-	this.SetSession("user", form.Password)
-	fmt.Println(form)
-	this.Ctx.Redirect(302, "/login/")
+	if !form.IsValid() {
+		this.TplNames = "login.tpl"
+		this.Data["Form"] = form
+	} else {
+		this.Ctx.Redirect(302, "/login/")
+	}
 }

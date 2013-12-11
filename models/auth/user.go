@@ -54,8 +54,8 @@ func (user *User) Save(session *r.Session) error {
 	if user.IsAnonymous() {
 		return errors.New("Can't save anonymous user")
 	}
-	if err = user.Validate(); err != nil {
-		return err
+	if _, ok := user.Validate(); !ok {
+		return errors.New("Invalid user")
 	}
 
 	var response r.WriteResponse
@@ -71,34 +71,40 @@ func (user *User) Save(session *r.Session) error {
 	return err
 }
 
-func (user *User) Validate() error {
-	var v *validation.ValidationResult
+func (user *User) Validate() (map[string][]error, bool) {
+	errMap := make(map[string][]error)
 	valid := validation.Validation{}
-	if v = valid.Required(user.UserName, "username"); !v.Ok {
-		return errors.New(v.Error.Message)
-	}
-	if v = valid.MaxSize(user.UserName, 30, "username"); !v.Ok {
-		return errors.New(v.Error.Message)
-	}
-	if v = valid.Match(user.UserName, UserNamePattern, "username"); !v.Ok {
-		return errors.New(v.Error.Message)
+
+	for _, v := range []*validation.ValidationResult{
+		valid.Required(user.UserName, "username"),
+		valid.MaxSize(user.UserName, 30, "usernameMax"),
+		valid.Match(user.UserName, UserNamePattern, "usernamePattern"),
+	} {
+		if !v.Ok {
+			if _, ok := errMap["username"]; ok {
+				errMap["username"] = append(errMap["username"],
+					errors.New(v.Error.Message))
+			} else {
+				errMap["username"] = []error{errors.New(v.Error.Message)}
+			}
+		}
 	}
 	if len(user.FirstName) > 0 {
-		if v = valid.MaxSize(user.FirstName, 30, "first name"); !v.Ok {
-			return errors.New(v.Error.Message)
+		if v := valid.MaxSize(user.FirstName, 30, "first name"); !v.Ok {
+			errMap["firsname"] = []error{errors.New(v.Error.Message)}
 		}
 	}
 	if len(user.LastName) > 0 {
-		if v = valid.MaxSize(user.LastName, 30, "last name"); !v.Ok {
-			return errors.New(v.Error.Message)
+		if v := valid.MaxSize(user.LastName, 30, "last name"); !v.Ok {
+			errMap["lastname"] = []error{errors.New(v.Error.Message)}
 		}
 	}
 	if len(user.Email) > 0 {
-		if v = valid.Email(user.Email, "email"); !v.Ok {
-			return errors.New(v.Error.Message)
+		if v := valid.Email(user.Email, "email"); !v.Ok {
+			errMap["email"] = []error{errors.New(v.Error.Message)}
 		}
 	}
-	return nil
+	return errMap, len(errMap) == 0
 }
 
 func (user *User) SetPassword(rawPass string) {
