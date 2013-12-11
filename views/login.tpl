@@ -16,4 +16,5 @@
 
       {{ end }}
         <input type="submit" name="submit"/>
+        {{ .UserId }}
 </form>

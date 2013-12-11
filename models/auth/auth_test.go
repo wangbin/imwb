@@ -72,3 +72,15 @@ func TestAuthenticate(t *testing.T) {
 		t.FailNow()
 	}
 }
+
+func TestGetUser(t *testing.T) {
+	rs, _ := r.Connect(settings.DbUri, settings.DbName)
+	defer rs.Close()
+	user := GetUser(rs, "somethingmakenosenes")
+	if user == nil {
+		t.FailNow()
+	}
+	if !user.IsAnonymous() {
+		t.Error("should be an anonymous user")
+	}
+}

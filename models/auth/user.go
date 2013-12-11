@@ -129,6 +129,9 @@ func GetUser(session *r.Session, userId string) *User {
 	if err != nil {
 		return NewAnonymousUser()
 	}
+	if user == nil {
+		user = NewAnonymousUser()
+	}
 	return user
 }
 
