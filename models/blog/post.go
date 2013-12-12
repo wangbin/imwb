@@ -17,4 +17,5 @@ type Post struct {
 	Content    string    `json:"content"`
 	RenderType string    `json:"render_type"`
 	Tags       []string  `json:"tags"`
+	User       string    `json:"user_id"`
 }

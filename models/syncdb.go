@@ -65,6 +65,10 @@ func loadPosts(session *r.Session) {
 	json.Unmarshal(content, &posts)
 	var response r.WriteResponse
 	r.Table(blog.PostTable).Insert(posts).Run(session).One(&response)
+	var users []*auth.User
+	r.Table(auth.UserTable).GetAll("username", "wangbin").Run(session).All(&users)
+	author := users[0]
+	r.Table(blog.PostTable).Update(r.Map{"user_id": author.Id}).Run(session).Exec()
 	fmt.Println(response)
 }
 
