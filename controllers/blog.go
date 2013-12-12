@@ -3,7 +3,6 @@ package controllers
 import (
 	"github.com/astaxie/beego"
 	r "github.com/christopherhesse/rethinkgo"
-	"github.com/russross/blackfriday"
 	"github.com/wangbin/imwb/models/blog"
 	"github.com/wangbin/imwb/settings"
 )
@@ -14,10 +13,6 @@ const (
 
 func init() {
 	beego.AddFuncMap("markup", Markup)
-}
-
-func Markup(in string) (out string) {
-	return string(blackfriday.MarkdownCommon([]byte(in)))
 }
 
 type PostListController struct {
