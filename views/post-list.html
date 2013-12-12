@@ -1,0 +1,17 @@
+{{ range $post := .Posts }}
+<div>
+  {{ with $post }}
+    <h2>{{.Title}}</h2>
+    <p>{{ dateformat .Created "2006-01-02 15:04:05" }}</p>
+    <p>{{ .Created }}</p>
+    <div>
+      {{ .Content|markup|str2html }}
+    </div>
+    <ul>
+      {{ range .Tags }}
+      <li><a href="/blog//tag/{{ . }}/">{{ . }}</a></li>
+      {{ end }}
+    </ul>
+  {{ end }}
+</div>
+{{ end }}
