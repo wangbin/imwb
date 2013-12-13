@@ -2,6 +2,7 @@ package models
 
 import (
 	r "github.com/dancannon/gorethink"
+	"time"
 )
 
 const (
@@ -21,10 +22,13 @@ func init() {
 		"address":  DbUri,
 		"database": DbName,
 		//        "authkey":  "14daak1cad13dj",
+		"maxIdle":     10,
+		"idleTimeout": time.Second * 30,
+		"maxActive":   50,
 	}
-	Conn, _ = GetSession()
+	Conn, _ = getSession()
 }
 
-func GetSession() (*r.Session, error) {
+func getSession() (*r.Session, error) {
 	return r.Connect(Database)
 }
