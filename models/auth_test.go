@@ -61,18 +61,16 @@ func TestNewAnonmousUser(t *testing.T) {
 }
 
 func TestAuthenticate(t *testing.T) {
-	rs, _ := GetSession()
-	if _, ok := Authenticate(rs, "wangbin", "1234"); !ok {
+	if _, ok := Authenticate("wangbin", "1234"); !ok {
 		t.Error("authenticate should pass here")
 	}
-	if _, ok := Authenticate(rs, "wangbin", "11111"); ok {
+	if _, ok := Authenticate("wangbin", "11111"); ok {
 		t.Error("authenticate should fail here")
 	}
 }
 
 func TestGetUser(t *testing.T) {
-	rs, _ := GetSession()
-	user := GetUser(rs, "somethingmakenosenes")
+	user := GetUser("somethingmakenosenes")
 	if user == nil {
 		t.FailNow()
 	}

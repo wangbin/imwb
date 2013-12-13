@@ -52,7 +52,7 @@ func (user *User) mapping() map[string]interface{} {
 	}
 }
 
-func (user *User) Save(session *r.Session) error {
+func (user *User) Save() error {
 	var err error
 	if user.IsAnonymous() {
 		return errors.New("Can't save anonymous user")
@@ -62,10 +62,10 @@ func (user *User) Save(session *r.Session) error {
 	}
 
 	if len(user.Id) > 0 {
-		_, err = r.Table(UserTable).Get(user.Id).Update(user.mapping()).RunWrite(session)
+		_, err = r.Table(UserTable).Get(user.Id).Update(user.mapping()).RunWrite(Conn)
 	} else {
 		var response r.WriteResponse
-		response, err = r.Table(UserTable).Insert(user).RunWrite(session)
+		response, err = r.Table(UserTable).Insert(user).RunWrite(Conn)
 		if err == nil && len(response.GeneratedKeys) > 0 {
 			user.Id = response.GeneratedKeys[0]
 		}
@@ -129,9 +129,9 @@ func (user *User) CheckPassword(password string) bool {
 	return hashers.CheckPassword(password, user.Password)
 }
 
-func GetUser(session *r.Session, userId string) *User {
+func GetUser(userId string) *User {
 	var user *User
-	row, err := r.Table(UserTable).Get(userId).RunRow(session)
+	row, err := r.Table(UserTable).Get(userId).RunRow(Conn)
 	if err != nil || row.IsNil() {
 		return NewAnonymousUser()
 	}
@@ -142,9 +142,9 @@ func GetUser(session *r.Session, userId string) *User {
 	return user
 }
 
-func Authenticate(session *r.Session, name, password string) (*User, bool) {
+func Authenticate(name, password string) (*User, bool) {
 	var user *User
-	rows, err := r.Table(UserTable).GetAllByIndex("username", name).RunRow(session)
+	rows, err := r.Table(UserTable).GetAllByIndex("username", name).RunRow(Conn)
 	if err != nil || rows.IsNil() {
 		fmt.Println(rows.IsNil())
 		return nil, false

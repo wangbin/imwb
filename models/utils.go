@@ -11,7 +11,10 @@ const (
 
 type RethinkMap map[string]interface{}
 
-var Database RethinkMap
+var (
+	Database RethinkMap
+	Conn     *r.Session
+)
 
 func init() {
 	Database = RethinkMap{
@@ -19,6 +22,7 @@ func init() {
 		"database": DbName,
 		//        "authkey":  "14daak1cad13dj",
 	}
+	Conn, _ = GetSession()
 }
 
 func GetSession() (*r.Session, error) {
