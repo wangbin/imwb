@@ -1,17 +1,20 @@
-package auth
+package models
 
 import (
 	"errors"
+	"fmt"
 	"github.com/astaxie/beego/validation"
-	r "github.com/christopherhesse/rethinkgo"
+	r "github.com/dancannon/gorethink"
 	"github.com/wangbin/imwb/utils/hashers"
 	"regexp"
+	"strings"
 	"time"
 )
 
 const (
-	UserTable       = "auth_user"
-	AnonymousUserId = "-1"
+	UserTable            = "auth_user"
+	AnonymousUserId      = "-1"
+	UserTableSecondIndex = "username"
 )
 
 var (
@@ -19,22 +22,22 @@ var (
 )
 
 type User struct {
-	Id          string    `json:"id,omitempty"`
-	UserName    string    `json:"username"`
-	Password    string    `json:"password"`
-	FirstName   string    `json:"first_name"`
-	LastName    string    `json:"last_name"`
-	Email       string    `json:"email"`
-	IsStaff     bool      `json:"is_staff"`
-	IsSuperUser bool      `json:"is_superuser"`
-	IsActive    bool      `json:"is_active"`
-	DateJoined  time.Time `json:"date_joined"`
-	LastLogin   time.Time `json:"last_login"`
-	Groups      []string  `json:"groups"`
+	Id          string    `gorethink:"id,omitempty"`
+	UserName    string    `gorethink:"username"`
+	Password    string    `gorethink:"password"`
+	FirstName   string    `gorethink:"first_name"`
+	LastName    string    `gorethink:"last_name"`
+	Email       string    `gorethink:"email"`
+	IsStaff     bool      `gorethink:"is_staff"`
+	IsSuperUser bool      `gorethink:"is_superuser"`
+	IsActive    bool      `gorethink:"is_active"`
+	DateJoined  time.Time `gorethink:"date_joined"`
+	LastLogin   time.Time `gorethink:"last_login"`
+	Groups      []string  `gorethink:"groups"`
 }
 
-func (user *User) mapping() r.Map {
-	return r.Map{
+func (user *User) mapping() map[string]interface{} {
+	return map[string]interface{}{
 		"username":     user.UserName,
 		"password":     user.Password,
 		"first_name":   user.FirstName,
@@ -58,12 +61,11 @@ func (user *User) Save(session *r.Session) error {
 		return errors.New("Invalid user")
 	}
 
-	var response r.WriteResponse
 	if len(user.Id) > 0 {
-		err = r.Table(UserTable).Get(user.Id).Update(user.mapping()).Run(session).One(
-			&response)
+		_, err = r.Table(UserTable).Get(user.Id).Update(user.mapping()).RunWrite(session)
 	} else {
-		err = r.Table(UserTable).Insert(user).Run(session).One(&response)
+		var response r.WriteResponse
+		response, err = r.Table(UserTable).Insert(user).RunWrite(session)
 		if err == nil && len(response.GeneratedKeys) > 0 {
 			user.Id = response.GeneratedKeys[0]
 		}
@@ -129,28 +131,55 @@ func (user *User) CheckPassword(password string) bool {
 
 func GetUser(session *r.Session, userId string) *User {
 	var user *User
-	err := r.Table(UserTable).Get(userId).Run(session).One(&user)
-	if err != nil {
+	row, err := r.Table(UserTable).Get(userId).RunRow(session)
+	if err != nil || row.IsNil() {
 		return NewAnonymousUser()
 	}
-	if user == nil {
-		user = NewAnonymousUser()
+	err = row.Scan(&user)
+	if err != nil {
+		return NewAnonymousUser()
 	}
 	return user
 }
 
 func Authenticate(session *r.Session, name, password string) (*User, bool) {
-	var users []*User
-	err := r.Table(UserTable).GetAll("username", name).Run(session).All(&users)
-	if err != nil {
+	var user *User
+	rows, err := r.Table(UserTable).GetAllByIndex("username", name).RunRow(session)
+	if err != nil || rows.IsNil() {
+		fmt.Println(rows.IsNil())
 		return nil, false
 	}
-	if len(users) == 0 {
+	err = rows.Scan(&user)
+	if err != nil || user == nil {
 		return nil, false
 	}
-	user := users[0]
 	if !user.CheckPassword(password) {
 		return nil, false
 	}
 	return user, true
+}
+
+func NormalizeEmail(email string) string {
+	if len(email) == 0 {
+		return email
+	}
+	index := strings.LastIndex(email, "@")
+	if index == -1 {
+		return email
+	}
+	prefix, suffix := email[:index], email[index+1:]
+	return fmt.Sprintf("%s@%s", prefix, strings.ToLower(suffix))
+}
+
+func NewUser(username string) *User {
+	user := &User{UserName: username}
+	user.DateJoined = time.Now()
+	user.LastLogin = time.Now()
+	return user
+}
+
+func NewAnonymousUser() *User {
+	user := NewUser("AnonymousUser")
+	user.Id = AnonymousUserId
+	return user
 }

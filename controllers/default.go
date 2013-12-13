@@ -4,7 +4,7 @@ import (
 	"github.com/astaxie/beego"
 	r "github.com/christopherhesse/rethinkgo"
 	"github.com/wangbin/imwb/forms"
-	"github.com/wangbin/imwb/models/auth"
+	"github.com/wangbin/imwb/models"
 	"github.com/wangbin/imwb/settings"
 )
 

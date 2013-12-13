@@ -1,8 +1,6 @@
-package auth
+package models
 
 import (
-	r "github.com/christopherhesse/rethinkgo"
-	"github.com/wangbin/imwb/settings"
 	"testing"
 )
 
@@ -63,19 +61,17 @@ func TestNewAnonmousUser(t *testing.T) {
 }
 
 func TestAuthenticate(t *testing.T) {
-	rs, _ := r.Connect(settings.DbUri, settings.DbName)
-	defer rs.Close()
+	rs, _ := GetSession()
 	if _, ok := Authenticate(rs, "wangbin", "1234"); !ok {
-		t.FailNow()
+		t.Error("authenticate should pass here")
 	}
 	if _, ok := Authenticate(rs, "wangbin", "11111"); ok {
-		t.FailNow()
+		t.Error("authenticate should fail here")
 	}
 }
 
 func TestGetUser(t *testing.T) {
-	rs, _ := r.Connect(settings.DbUri, settings.DbName)
-	defer rs.Close()
+	rs, _ := GetSession()
 	user := GetUser(rs, "somethingmakenosenes")
 	if user == nil {
 		t.FailNow()
