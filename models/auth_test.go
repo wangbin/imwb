@@ -53,8 +53,8 @@ func TestNormailzeEmail(t *testing.T) {
 	}
 }
 
-func TestNewAnonmousUser(t *testing.T) {
-	u := NewAnonymousUser()
+func TestAnonmousUser(t *testing.T) {
+	u := AnonymousUser()
 	if u.Id != AnonymousUserId {
 		t.Error("User is not anonymous")
 	}

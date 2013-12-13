@@ -133,11 +133,11 @@ func GetUser(userId string) *User {
 	var user *User
 	row, err := r.Table(UserTable).Get(userId).RunRow(Conn)
 	if err != nil || row.IsNil() {
-		return NewAnonymousUser()
+		return AnonymousUser()
 	}
 	err = row.Scan(&user)
 	if err != nil {
-		return NewAnonymousUser()
+		return AnonymousUser()
 	}
 	return user
 }
@@ -178,7 +178,7 @@ func NewUser(username string) *User {
 	return user
 }
 
-func NewAnonymousUser() *User {
+func AnonymousUser() *User {
 	user := NewUser("AnonymousUser")
 	user.Id = AnonymousUserId
 	return user
