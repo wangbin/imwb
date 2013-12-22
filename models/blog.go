@@ -2,6 +2,7 @@ package models
 
 import (
 	r "github.com/dancannon/gorethink"
+	"strconv"
 	"time"
 )
 
@@ -38,6 +39,14 @@ func paginate(query r.RqlTerm, limit, offset int64) (posts []*Post) {
 func Posts(limit, offset int64) []*Post {
 	query := r.Table(PostTable)
 	return paginate(query, limit, offset)
+}
+
+func PostCount() (int, error) {
+	query := r.Table(PostTable)
+	var countStr string
+	row, _ := query.Count().RunRow(Conn)
+	row.Scan(&countStr)
+	return strconv.Atoi(countStr)
 }
 
 func PostsByTag(tag string, limit, offset int64) []*Post {

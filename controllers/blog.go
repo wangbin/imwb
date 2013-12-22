@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/astaxie/beego"
 	"github.com/wangbin/imwb/models"
+	"github.com/wangbin/imwb/utils"
 	"strconv"
 )
 
@@ -18,9 +19,16 @@ type PostListController struct {
 	beego.Controller
 }
 
+func (this *PostListController) SetPaginator(per int, nums int) *utils.Paginator {
+	p := utils.NewPaginator(this.Ctx.Request, per, nums)
+	this.Data["paginator"] = p
+	return p
+}
+
 func (this *PostListController) Get() {
+	this.Layout = "layout.html"
 	this.TplNames = "post-list.html"
-	page, err := this.GetInt("page")
+	page, err := this.GetInt("p")
 	if err != nil || page < 0 {
 		page = 0
 	}
@@ -35,5 +43,7 @@ func (this *PostListController) Get() {
 	} else {
 		this.Data["Posts"] = models.Posts(NumberOfPostsPerPage,
 			page*NumberOfPostsPerPage)
+		count, _ := models.PostCount()
+		this.SetPaginator(10, count)
 	}
 }

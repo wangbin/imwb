@@ -1,17 +1,58 @@
-{{ range $post := .Posts }}
-<div>
-  {{ with $post }}
-    <h2>{{.Title}}</h2>
-    <p>{{ dateformat .Created "2006-01-02 15:04:05" }}</p>
-    <p>{{ .Created }}</p>
-    <div>
-      {{ markup .Content true }}
+<div class="row">
+  <div class="large-12 columns">
+    <div class="nav-bar right">
+      <ul class="button-group">
+        <li><a href="#" class="button">Link 1</a></li>
+        <li><a href="#" class="button">Link 2</a></li>
+        <li><a href="#" class="button">Link 3</a></li>
+        <li><a href="#" class="button">Link 4</a></li>
+      </ul>
     </div>
-    <ul>
-      {{ range .Tags }}
-      <li><a href="/blog/tag/{{ . }}/">{{ . }}</a></li>
-      {{ end }}
-    </ul>
-  {{ end }}
+    <h1>Blog <small>This is my personal blog.</small></h1>
+    <hr />
+  </div>
 </div>
-{{ end }}
+<div class="row">
+  <div class="large-9 columns" role="content">
+    {{ range $post := .Posts }}
+    <article>
+      {{ with $post }}
+      <h2>{{.Title}}</h2>
+      <p>{{ dateformat .Created "2006-01-02 15:04:05" }}</p>
+      <p>{{ .Created }}</p>
+      <div>
+        {{ markup .Content true }}
+      </div>
+      <ul>
+        {{ range .Tags }}
+        <li><a href="/blog/tag/{{ . }}/">{{ . }}</a></li>
+        {{ end }}
+      </ul>
+      {{ end }}
+    </article>
+    {{ end }}
+{{if gt .paginator.PageNums 1}}
+<ul class="pagination pagination-sm">
+    {{if .paginator.HasPrev}}
+        <li><a href="{{.paginator.PageLinkFirst}}">First</a></li>
+        <li><a href="{{.paginator.PageLinkPrev}}">&lt;</a></li>
+    {{else}}
+        <li class="disabled"><a>First</a></li>
+        <li class="disabled"><a>&lt;</a></li>
+    {{end}}
+    {{range $index, $page := .paginator.Pages}}
+        <li{{if $.paginator.IsActive .}} class="active"{{end}}>
+            <a href="{{$.paginator.PageLink $page}}">{{$page}}</a>
+        </li>
+    {{end}}
+    {{if .paginator.HasNext}}
+        <li><a href="{{.paginator.PageLinkNext}}">&gt;</a></li>
+        <li><a href="{{.paginator.PageLinkLast}}">Last</a></li>
+    {{else}}
+        <li class="disabled"><a>&gt;</a></li>
+        <li class="disabled"><a>Last</a></li>
+    {{end}}
+</ul>
+{{end}}
+  </div>
+</div>
